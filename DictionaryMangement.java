@@ -11,6 +11,8 @@ public class DictionaryMangement {
  //   private ArrayList<String> interpretation = new ArrayList<>();
     HashMap<String, String> dictionary = new HashMap<>();
 
+    ArrayList<String> same = new ArrayList<>();
+
     public  void insertFromFile() {
         File file = new File("en_vi.txt");
         FileInputStream fi = null;
@@ -118,6 +120,20 @@ public class DictionaryMangement {
 
     public String Interpretation(String a) {
         return dictionary.get(a);
+    }
+
+    public ArrayList<String> Same(String a) {
+    //    ArrayList<String> same = new ArrayList<>();
+        for (String key : dictionary.keySet()) {
+            int pos = key.indexOf(a);
+            if(pos == 0) {
+                same.add(key);
+            }
+        }
+        return same;
+    }
+    public void deleteListSame() {
+        same.clear();
     }
 
     public static void main(String[] args) {
