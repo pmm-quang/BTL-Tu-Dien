@@ -8,6 +8,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -25,51 +27,61 @@ public class Controller implements Initializable {
     @FXML
     public TextArea taMeaning;
 
-    String Word = "";
-    DictionaryMangement dictionary = new DictionaryMangement();
+    private String Word = "";
+
+    private DictionaryMangement dictionary = new DictionaryMangement();
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        tfSearchedWord.setOnKeyReleased(event -> {
-            String searchedWord = tfSearchedWord.getText();
-                if (event.getCode() != null && ! event.getCode().equals(KeyCode.ENTER)) {
-                    Word = searchedWord;
-                //    String searchedWord = tfSearchedWord.getText();
-                    dictionary.deleteListSame();
-                    lvWords.getItems().clear();
-                    lvWords.getItems().addAll(dictionary.Same(Word));
+        tfSearchedWord.setOnKeyReleased(this::textFieldSearch);
 
-                    System.out.println(Word);
-                } else if (event.getCode().equals(KeyCode.ENTER)) {
-                    String wordMeaning = dictionary.Interpretation(searchedWord);
-                    taMeaning.setText(wordMeaning);
-                    Word = null;
-                }
-        });
+        btSearch.setOnMouseClicked(this::buttonSearch);
 
-        btSearch.setOnMouseClicked(event -> {
-            System.out.println("Search!!!");
-            String searchedWord = tfSearchedWord.getText();
-            if (searchedWord != null && searchedWord.equals("") == false) {
-                System.out.println("Searched World: " + searchedWord);
-                String wordMeaning = dictionary.Interpretation(searchedWord);
-                taMeaning.setText(wordMeaning);
-            }
-        });
         this.initializeWordList();
-        lvWords.setOnMouseClicked(event -> {
-            String searchedWord = lvWords.getSelectionModel().getSelectedItem();
-            if (searchedWord != null && searchedWord.equals("") == false) {
-                System.out.println("Searched World: " + searchedWord);
-                String wordMeaning = dictionary.Interpretation(searchedWord);
-                taMeaning.setText(wordMeaning);
-            }
-        });
+
+        lvWords.setOnMouseClicked(this::listViewSearch);
     }
 
     public void initializeWordList() {
         dictionary.insertFromFile();
         lvWords.getItems().addAll(dictionary.getDictionary().keySet());
-    //    lvWords.getItems().addAll(dictionary.Same("He"));
+    }
+
+    private void textFieldSearch(KeyEvent event) {
+        String searchedWord = tfSearchedWord.getText();
+        if (event.getCode() != null && !event.getCode().equals(KeyCode.ENTER)) {
+            Word = searchedWord;
+            dictionary.deleteListSame();
+            lvWords.getItems().clear();
+            lvWords.getItems().addAll(dictionary.Same(Word));
+            System.out.println(Word);
+        } else if (event.getCode().equals(KeyCode.ENTER)) {
+            this.interprtationList(searchedWord);
+            Word = null;
+        }
+    }
+
+    private void interprtationList(String searchedWord) {
+        String wordMeaning = "";
+        for (int i = 0; i < dictionary.Interpretation(searchedWord).size(); i++) {
+            wordMeaning += dictionary.Interpretation(searchedWord).get(i) + '\n';
+        }
+        taMeaning.setText(wordMeaning);
+    }
+
+    private void buttonSearch(MouseEvent event) {
+        System.out.println("Search!!!");
+        String searchedWord = tfSearchedWord.getText();
+        if (searchedWord != null && searchedWord.equals("") == false) {
+            System.out.println("Searched World: " + searchedWord);
+            this.interprtationList(searchedWord);
+        }
+    }
+    private void listViewSearch(MouseEvent event) {
+        String searchedWord = lvWords.getSelectionModel().getSelectedItem();
+        if (searchedWord != null && searchedWord.equals("") == false) {
+            System.out.println("Searched World: " + searchedWord);
+            this.interprtationList(searchedWord);
+        }
     }
 }
