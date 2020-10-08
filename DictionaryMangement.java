@@ -3,57 +3,52 @@ package sample;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class DictionaryMangement {
-//    private ArrayList<String> wordTarget = new ArrayList<>();
- //   private ArrayList<String> interpretation = new ArrayList<>();
-    HashMap<String, String> dictionary = new HashMap<>();
+    private HashMap<String, ArrayList<String>> dictionary = new HashMap<>();
 
-    ArrayList<String> same = new ArrayList<>();
+    private ArrayList<String> same = new ArrayList<>();
+
+    private final String FILENAME = "en_vi.txt";
 
     public  void insertFromFile() {
-        File file = new File("en_vi.txt");
+        File file = new File(FILENAME);
         FileInputStream fi = null;
-        long length = 0;
-        long count = 0;
-
-    //    wordTarget = new String[(int) length];
-    //    interpretation = new String[Math.toIntExact(length)];
-
         try {
             fi= new FileInputStream(file);
-            InputStreamReader fin = new InputStreamReader(fi, "utf-8");
-            int data = fin.read();
+            InputStreamReader isr = new InputStreamReader(fi, "utf-8");
+            int data = isr.read();
             StringBuilder line = new StringBuilder();
             String wordTarget =  "";
             String interpretation;
             while (data != -1) {
                 if (((char) data == '\n')) {
                     interpretation = line.toString();
-            //        String[] result = interpretation.split("#");
-            //       interpretation.add(line.toString());
-            //        System.out.println(interpretation[count-1]);
-                    dictionary.put(wordTarget, interpretation);
+                    String[] result = interpretation.split("#");
+                    ArrayList<String> resultList = new ArrayList<>();
+                    for (int i = 0; i < result.length; i++) {
+                        resultList.add(result[i]);
+                    }
+                    dictionary.put(wordTarget, resultList);
                     line.delete(0, line.length());
-                    data = fin.read();
+                    data = isr.read();
                     continue;
                 } else if ((char) data == '\t') {
                     wordTarget = line.toString();
-                //    wordTarget.add(line.toString());
-            //        System.out.println(wordTarget[count]);
                     line.delete(0, line.length());
-                    data = fin.read();
-                    count++;
+                    data = isr.read();
                 }
                 line.append((char) data);
-                data = fin.read();
+                data = isr.read();
             }
             interpretation = line.toString();
-            dictionary.put(wordTarget, interpretation);
-         //   interpretation.add(line.toString());
-         //   System.out.println(interpretation[count-1] + count);
+            String[] result = interpretation.split("#");
+            ArrayList<String> resultList = new ArrayList<>();
+            for (int i = 0; i < result.length; i++) {
+                resultList.add(result[i]);
+            }
+            dictionary.put(wordTarget, resultList);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,6 +87,7 @@ public class DictionaryMangement {
 
          */
 
+        /*
         for (Map.Entry<String, String> entry : dictionary.entrySet()) {
             String[] result = entry.getValue().split("#");
             String temp = "";
@@ -111,19 +107,44 @@ public class DictionaryMangement {
          //   System.out.println(entry.getValue());
         }
 
+         */
+
     }
 
+    public void AppendToFile(String wordTarget, ArrayList <String> interpretation) {
+        try {
+            File file = new File(FILENAME);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter pw = new PrintWriter(bw);
+            pw.println("");
+            pw.print(wordTarget + '\t');
+            for (int i = 0; i < interpretation.size(); i++) {
+                if (i == interpretation.size() - 1) {
+                    pw.println(interpretation.get(i));
+                } else {
+                    pw.print(interpretation.get(i) + "#");
+                }
+            }
+            pw.close();
+            System.out.println("Data successfully appended at the end of file");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public HashMap<String, String> getDictionary() {
+    public HashMap<String, ArrayList<String>> getDictionary() {
         return dictionary;
     }
 
-    public String Interpretation(String a) {
-        return dictionary.get(a);
+    public ArrayList<String> Interpretation(String a) {
+       return dictionary.get(a);
     }
 
     public ArrayList<String> Same(String a) {
-    //    ArrayList<String> same = new ArrayList<>();
         for (String key : dictionary.keySet()) {
             int pos = key.indexOf(a);
             if(pos == 0) {
@@ -142,6 +163,13 @@ public class DictionaryMangement {
         Scanner sc = new Scanner(System.in);
        DictionaryMangement a = new DictionaryMangement();
        a.insertFromFile();
+       String key = "Javacore";
+       ArrayList <String> value = new ArrayList<>();
+       value.add("lap");
+       value.add("trinh");
+       value.add("huong");
+       value.add("tuong");
+       a.AppendToFile(key, value);
     }
 
 }
